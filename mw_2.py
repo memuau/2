@@ -1,5 +1,4 @@
 from difflib import SequenceMatcher
-import pandas as pd
 
 similar_chars = {'A': '4', 'B': 'DO80', 'C': '', 'D': 'O8B0', 'E': 'F', 'F': 'E', 'G': '', 'H': '', 
 'I': '1L', 'J': '', 'K': '', 'L': '1J', 'M': 'NW', 'N': 'MW', 'O': '0UD', 'P': 'R', 'R': 'P', 'S': '5', 
@@ -14,14 +13,14 @@ unique_plates = ['W1SMART', 'NUDE202', 'NODE202', 'NDDE202', 'NDDE202J', 'WDDE20
  'NODEQ', 'NODEDE', 'WODE20E', 'NDDEDC', 'NU0E202', 'NUOE02', 'NODE02', 'NODE20',
  'NOBE402', 'NODEED', 'NDDEED', 'NUBE202', 'NDDEEOE', 'NODE', 'NOBEDE', 'WDBE302',
  'NUDEEDE', 'NUDE02', 'NDDEEO2', 'WDBEQ', 'NUDE33', 'NDBE20E', 'NDOE202', 'NDBED',
- 'NOBE20E', 'NDDE272'] #wczytane z zadania 1 na potrzeby badawcze
+ 'NOBE20E', 'NDDE272'] #skopiowane z zadania 1 pkt a
 
 
 def similarity_2(a: str, b: str, similar_char_tolerance: float):
     match = SequenceMatcher(None, a, b).find_longest_match(0, len(a), 0, len(b)) # na początku znajduję najdłuższy identyczny substring,
     # robię to po to, aby "wygładzić" skutki braku jednego znaku w środku stringa, które w poprzednim algorytmie mocno zaniżały wynik
-    new_a = a[:match.a] + a[match.a+match.size:]
-    new_b = b[:match.b] + b[match.b+match.size:]
+    new_a = a[:match.a] + a[match.a+match.size:] # tworzę nowy string a, pozbawiony najdłuższego wspólnego substringa dzielonego ze stringiem b
+    new_b = b[:match.b] + b[match.b+match.size:] # jw..               b                  jw..                                                 a
     #print(new_a)
     #print(new_b)
     #od tego miejsca funkcja ma taki sam przebieg, ale rozważa już tylko stringi pomniejszone o największy wspólny substring
@@ -32,27 +31,11 @@ def similarity_2(a: str, b: str, similar_char_tolerance: float):
         if pair[0] == pair[1]:
             small_counter +=1 # znaki są takie same
         elif pair[1] in similar_chars[pair[0]]:
-            small_counter += similar_char_tolerance # tę wartość można jeszcze dostroić
+            small_counter += similar_char_tolerance
         big_counter += small_counter 
         small_counter = 0
     return ((match.size * (max(len(a), len(b)) - abs(match.a - match.b))/max(len(a), len(b))) + big_counter )/max(len(a), len(b))
 
 
-dflist = []
 for plate in unique_plates :
-    mylist = []
-    #print(f"NODE202 and {plate} {similarity_2(unique_plates[2], plate, 0.5)}")
-    mylist.append(f"NODE202 and {plate}")
-    mylist.append(similarity_2(unique_plates[2], plate, 0.4))
-    mylist.append(similarity_2(unique_plates[2], plate, 0.5))
-    mylist.append(similarity_2(unique_plates[2], plate, 0.6))
-    mylist.append(similarity_2(unique_plates[2], plate, 0.7))
-    mylist.append(similarity_2(unique_plates[2], plate, 0.8))
-    mylist.append(similarity_2(unique_plates[2], plate, 0.9))
-    dflist.append(mylist)
-
-
-out = pd.DataFrame(dflist, columns=["Porównywane napisy", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"])
-out.to_excel("tolerance_0_4_to_0_9.xlsx")
-
-#wygenerowałem excela z danymi, które posłużą mi do wybrania optymalnej wartości współczynnika 'similar_char_tolerance'
+    print(f"NODE202 and {plate} {similarity_2(unique_plates[2], plate, 0.5)}")
